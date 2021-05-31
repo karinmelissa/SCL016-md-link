@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-const findMdLinks = require('./lib/mdLinks.js');
+const findMdLinks = require('./lib/index.js');
 const path = require('path');
 const { program } = require('commander');
-const { link } = require('fs');
 
 //getting the route & validate request from the console 
 let routeFile = process.argv[2];
-let validateLinks = process.argv[3];
 //resolves a sequence of paths or path segments into an absolute path.
 routeFile = path.resolve(routeFile);
 //normalizes the given path, fixing writtings errors 
@@ -30,29 +28,30 @@ else if(options.validate & !options.stats){
 }
 else if(!options.validate & options.stats){
   findMdLinks.mdLinks(routeFile, true).then((links)=>{
-    const getStats = showStats(links)
+    const getStats = showStats(links, false)
     console.log(getStats)
   })
 }
 else if(options.validate & options.stats){
   findMdLinks.mdLinks(routeFile, true).then((links)=>{
-    const getStats = showStats(links)
+    const getStats = showStats(links, true)
     console.log(links)
     console.log(getStats)
   })
 }
 
-const showStats = (linksArray)=>{
+const showStats = (linksArray , validation)=>{
   const linksStats = {
-    Total: 0,
-    //Unique: 0, que son los unique?
-    Broken: 0,
+    Total: linksArray.length,
+    Unique: new Set(linksArray.map(({ href }) => href)).size,
   }
-  linksStats.Total = linksArray.length;
-  linksArray.forEach((e) => {
-    if(e.ok=='fail'){
-      linksStats.Broken ++; 
-    }
-  });
+  if(validation == true){
+    linksStats.Broken = 0;
+    linksArray.forEach((e) => {
+      if(e.ok=='fail'){
+        linksStats.Broken ++; 
+      }
+    });  
+  }
   return linksStats;
 }
