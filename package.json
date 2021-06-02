@@ -32,6 +32,7 @@
   "dependencies": {
     "commander": "^7.2.0",
     "eslint": "^7.26.0",
+    "filehound": "^1.17.4",
     "marked": "^2.0.3",
     "node-fetch": "^2.6.1"
   },
